@@ -7,6 +7,7 @@ package jnnfinance.rn;
 
 import org.joone.engine.DelayLayer;
 import org.joone.engine.FullSynapse;
+import org.joone.engine.Monitor;
 import org.joone.engine.NeuralNetEvent;
 import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
@@ -26,34 +27,44 @@ public class Finanzas implements NeuralNetListener {
          SigmoidLayer oculta1 = new SigmoidLayer();
          SigmoidLayer oculta2 = new SigmoidLayer();
          SigmoidLayer salida = new SigmoidLayer();
-         
+
          entrada.setLayerName("entrada");
          oculta1.setLayerName("oculta 1");
          oculta2.setLayerName("oculta 2");
          salida.setLayerName("salida");
-         
+
          entrada.setRows(1);
          oculta1.setRows(15);
          oculta2.setRows(5);
          salida.setRows(1);
-         
+
          FullSynapse sinapsisEO1 = new FullSynapse(); /* entrada -> oculta1 */
          FullSynapse sinapsisO1O2 = new FullSynapse(); /* oculta1 -> oculta2 */
          FullSynapse sinapsisO2S = new FullSynapse(); /* oculta2 -> salida */
-         
+
          sinapsisEO1.setName("entrada-oculta1");
          sinapsisO1O2.setName("oculta1-oculta2");
          sinapsisO2S.setName("oculta2-salida");
-         
+
          entrada.addOutputSynapse(sinapsisEO1);
          oculta1.addInputSynapse(sinapsisEO1);
          oculta1.addOutputSynapse(sinapsisO1O2);
          oculta2.addInputSynapse(sinapsisO1O2);
          oculta2.addOutputSynapse(sinapsisO2S);
          salida.addInputSynapse(sinapsisO2S);
+
+         Monitor monitor = new Monitor();
+         monitor.setLearningRate(0.5);
+         monitor.setMomentum(0.6);
+         
+         entrada.setMonitor(monitor);
+         oculta1.setMonitor(monitor);
+         oculta2.setMonitor(monitor);
+         salida.setMonitor(monitor);
          
          
-        
+         
+         
         
     }
 
