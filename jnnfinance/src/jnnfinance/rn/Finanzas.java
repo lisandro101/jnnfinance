@@ -11,6 +11,8 @@ import org.joone.engine.Monitor;
 import org.joone.engine.NeuralNetEvent;
 import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
+import org.joone.io.FileInputSynapse;
+import org.joone.io.YahooFinanceInputSynapse;
 
 /**
  *
@@ -71,6 +73,14 @@ public class Finanzas implements NeuralNetListener {
 
         monitor.addNeuralNetListener(this);
         
+        String fechaInicio = "30-apr-2007";
+        String fechaFin="30-apr-2008";
+        int primeraColumna = 2;
+        String simbolo = "MSFT";
+        
+        iniciarYahoo(fechaInicio, fechaFin, primeraColumna, simbolo);
+        
+        
         
         
         
@@ -94,6 +104,20 @@ public class Finanzas implements NeuralNetListener {
 
     public void netStoppedError(NeuralNetEvent arg0, String arg1) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    private void iniciarYahoo(String fechaInicio, String fechaFin, int primeraColumna,String simbolo) {
+
+        YahooFinanceInputSynapse flujoEntrada = new YahooFinanceInputSynapse();
+        
+        flujoEntrada.setAdvancedColumnSelector("4");
+        flujoEntrada.setName("Yahoo");
+        flujoEntrada.setFirstRow(primeraColumna);
+        flujoEntrada.setLastRow(0);
+        flujoEntrada.setDateStart(fechaInicio);
+        flujoEntrada.setDateEnd(fechaFin);
+        flujoEntrada.setSymbol(simbolo);
+        
     }
 
 }
