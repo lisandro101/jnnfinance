@@ -31,21 +31,24 @@ public class Finanzas implements NeuralNetListener {
 
     private void iniciar() {
 
+        /* Definición de las capas de la red */
         DelayLayer entrada = new DelayLayer();
         SigmoidLayer oculta1 = new SigmoidLayer();
         SigmoidLayer oculta2 = new SigmoidLayer();
         SigmoidLayer salida = new SigmoidLayer();
-
+        
         entrada.setLayerName("entrada");
         oculta1.setLayerName("oculta 1");
         oculta2.setLayerName("oculta 2");
         salida.setLayerName("salida");
 
+        /* Definición de la cantidad de neuronas de cada capa */
         entrada.setRows(1);
         oculta1.setRows(15);
         oculta2.setRows(5);
         salida.setRows(1);
 
+        /* Creación de las uniones entre las capas (sinaopsis) */
         FullSynapse sinapsisEO1 = new FullSynapse(); /* entrada -> oculta1 */
         FullSynapse sinapsisO1O2 = new FullSynapse(); /* oculta1 -> oculta2 */
         FullSynapse sinapsisO2S = new FullSynapse(); /* oculta2 -> salida */
@@ -61,6 +64,7 @@ public class Finanzas implements NeuralNetListener {
         oculta2.addOutputSynapse(sinapsisO2S);
         salida.addInputSynapse(sinapsisO2S);
         
+        /* Definición de un monitor para que coordine la red */
         Monitor monitor = iniciarMonitor();
 
         entrada.setMonitor(monitor);
@@ -70,6 +74,7 @@ public class Finanzas implements NeuralNetListener {
 
         monitor.addNeuralNetListener(this);
         
+        /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
         String fechaInicio = "30-apr-2007";
         String fechaFin="30-apr-2008";
         int primeraColumna = 2;
@@ -77,7 +82,9 @@ public class Finanzas implements NeuralNetListener {
         YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraColumna, simbolo);
         entrada.addInputSynapse(flujoEntrada);
         
-        
+        /* Definición de un teacher para que entrene la red */
+        TeachingSynapse trainer = new TeachingSynapse();
+        trainer.setMonitor(monitor);
         
         
         
