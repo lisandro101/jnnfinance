@@ -11,7 +11,6 @@ import org.joone.engine.Monitor;
 import org.joone.engine.NeuralNetEvent;
 import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
-import org.joone.io.FileInputSynapse;
 import org.joone.io.YahooFinanceInputSynapse;
 
 /**
@@ -61,10 +60,8 @@ public class Finanzas implements NeuralNetListener {
         oculta2.addInputSynapse(sinapsisO1O2);
         oculta2.addOutputSynapse(sinapsisO2S);
         salida.addInputSynapse(sinapsisO2S);
-
-        Monitor monitor = new Monitor();
-        monitor.setLearningRate(0.5);
-        monitor.setMomentum(0.6);
+        
+        Monitor monitor = iniciarMonitor();
 
         entrada.setMonitor(monitor);
         oculta1.setMonitor(monitor);
@@ -77,8 +74,10 @@ public class Finanzas implements NeuralNetListener {
         String fechaFin="30-apr-2008";
         int primeraColumna = 2;
         String simbolo = "MSFT";
+        YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraColumna, simbolo);
+        entrada.addInputSynapse(flujoEntrada);
         
-        iniciarYahoo(fechaInicio, fechaFin, primeraColumna, simbolo);
+        
         
         
         
@@ -106,7 +105,16 @@ public class Finanzas implements NeuralNetListener {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private void iniciarYahoo(String fechaInicio, String fechaFin, int primeraColumna,String simbolo) {
+    private Monitor iniciarMonitor() {
+
+        Monitor monitor = new Monitor();
+        monitor.setLearningRate(0.5);
+        monitor.setMomentum(0.6);
+
+        return monitor;
+    }
+
+    private YahooFinanceInputSynapse iniciarYahoo(String fechaInicio, String fechaFin, int primeraColumna,String simbolo) {
 
         YahooFinanceInputSynapse flujoEntrada = new YahooFinanceInputSynapse();
         
@@ -117,6 +125,8 @@ public class Finanzas implements NeuralNetListener {
         flujoEntrada.setDateStart(fechaInicio);
         flujoEntrada.setDateEnd(fechaFin);
         flujoEntrada.setSymbol(simbolo);
+        
+       return flujoEntrada;
         
     }
 
