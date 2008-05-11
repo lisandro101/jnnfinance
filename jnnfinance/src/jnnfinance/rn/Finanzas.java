@@ -45,6 +45,13 @@ public class Finanzas implements NeuralNetListener {
          sinapsisO1O2.setName("oculta1-oculta2");
          sinapsisO2S.setName("oculta2-salida");
          
+         entrada.addOutputSynapse(sinapsisEO1);
+         oculta1.addInputSynapse(sinapsisEO1);
+         oculta1.addOutputSynapse(sinapsisO1O2);
+         oculta2.addInputSynapse(sinapsisO1O2);
+         oculta2.addOutputSynapse(sinapsisO2S);
+         salida.addInputSynapse(sinapsisO2S);
+         
          
         
         
