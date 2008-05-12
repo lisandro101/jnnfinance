@@ -11,6 +11,8 @@ import org.joone.engine.Monitor;
 import org.joone.engine.NeuralNetEvent;
 import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
+import org.joone.engine.learning.TeachingSynapse;
+import org.joone.io.FileOutputSynapse;
 import org.joone.io.YahooFinanceInputSynapse;
 
 /**
@@ -77,15 +79,19 @@ public class Finanzas implements NeuralNetListener {
         /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
         String fechaInicio = "30-apr-2007";
         String fechaFin="30-apr-2008";
-        int primeraColumna = 2;
+        int primeraFila = 2;
         String simbolo = "MSFT";
-        YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraColumna, simbolo);
+        YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraFila, simbolo);
         entrada.addInputSynapse(flujoEntrada);
         
-        /* Definición de un teacher para que entrene la red */
-        TeachingSynapse trainer = new TeachingSynapse();
-        trainer.setMonitor(monitor);
+        /* Definición de los datos de validación para el teacher*/
+        YahooFinanceInputSynapse flujoEntrenamiento = iniciarYahoo(fechaInicio, fechaFin, primeraFila+1, simbolo);
         
+        /* Definición de un teacher para que entrene la red */
+        TeachingSynapse profe = iniciarTeacher(monitor, flujoEntrenamiento);
+        
+        /* Conección entre la capa de salida y el teacher */
+        salida.addOutputSynapse(profe);
         
         
         
@@ -119,6 +125,22 @@ public class Finanzas implements NeuralNetListener {
         monitor.setMomentum(0.6);
 
         return monitor;
+    }
+
+    private TeachingSynapse iniciarTeacher(Monitor monitor, YahooFinanceInputSynapse flujoEntrenamiento) {
+
+        /* Definición de un teacher para que entrene la red */
+        TeachingSynapse profe = new TeachingSynapse();
+        profe.setMonitor(monitor);
+
+        profe.setDesired(flujoEntrenamiento);
+
+        /* Creación de un archivo para guardar el error de la red calculado por el teacher */
+        FileOutputSynapse archivoError = new FileOutputSynapse();
+        archivoError.setFileName("Archivo de error");
+        profe.addResultSynapse(archivoError);
+
+        return profe;
     }
 
     private YahooFinanceInputSynapse iniciarYahoo(String fechaInicio, String fechaFin, int primeraColumna,String simbolo) {
