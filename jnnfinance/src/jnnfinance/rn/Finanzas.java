@@ -14,6 +14,7 @@ import org.joone.engine.SigmoidLayer;
 import org.joone.engine.learning.TeachingSynapse;
 import org.joone.io.FileOutputSynapse;
 import org.joone.io.YahooFinanceInputSynapse;
+import org.joone.net.NeuralNet;
 
 /**
  *
@@ -27,11 +28,36 @@ public class Finanzas implements NeuralNetListener {
     public static void main(String[] args) {
          
         Finanzas finanzas = new Finanzas(); 
-        finanzas.iniciar();
+        NeuralNet red = finanzas.inicializar();
+        finanzas.entrenar(red);
          
     }
 
-    private void iniciar() {
+    private void entrenar(NeuralNet red) {
+
+        /* Inicialización del un monitor para coordina la red */
+        Monitor monitor = red.getMonitor();
+        monitor.setLearningRate(0.5);
+        monitor.setMomentum(0.6);
+        monitor.setLearning(true);
+        
+        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
+        monitor.setTrainingPatterns(0);
+
+        /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
+        monitor.setTotCicles(10000);
+
+        red.addNeuralNetListener(this);
+        red.start();
+        red.getMonitor().Go();
+        red.join();
+        
+        System.out.println("Red detenida."); 
+        System.out.println("Ultimo RMSE: "+red.getMonitor().getGlobalError());
+        
+    }
+
+    private NeuralNet inicializar() {
 
         /* Definición de las capas de la red */
         DelayLayer entrada = new DelayLayer();
@@ -39,10 +65,10 @@ public class Finanzas implements NeuralNetListener {
         SigmoidLayer oculta2 = new SigmoidLayer();
         SigmoidLayer salida = new SigmoidLayer();
         
-        entrada.setLayerName("entrada");
-        oculta1.setLayerName("oculta 1");
-        oculta2.setLayerName("oculta 2");
-        salida.setLayerName("salida");
+        entrada.setLayerName("Capa de entrada");
+        oculta1.setLayerName("Capa oculta 1");
+        oculta2.setLayerName("Capa oculta 2");
+        salida.setLayerName("Capa de salida");
 
         /* Definición de la cantidad de neuronas de cada capa */
         entrada.setRows(1);
@@ -50,14 +76,14 @@ public class Finanzas implements NeuralNetListener {
         oculta2.setRows(5);
         salida.setRows(1);
 
-        /* Creación de las uniones entre las capas (sinaopsis) */
+        /* Creación de las uniones entre las capas (sinapsis) */
         FullSynapse sinapsisEO1 = new FullSynapse(); /* entrada -> oculta1 */
         FullSynapse sinapsisO1O2 = new FullSynapse(); /* oculta1 -> oculta2 */
         FullSynapse sinapsisO2S = new FullSynapse(); /* oculta2 -> salida */
 
-        sinapsisEO1.setName("entrada-oculta1");
-        sinapsisO1O2.setName("oculta1-oculta2");
-        sinapsisO2S.setName("oculta2-salida");
+        sinapsisEO1.setName("Sinapsis entrada-oculta1");
+        sinapsisO1O2.setName("Sinapsis oculta1-oculta2");
+        sinapsisO2S.setName("Sinapsis oculta2-salida");
 
         entrada.addOutputSynapse(sinapsisEO1);
         oculta1.addInputSynapse(sinapsisEO1);
@@ -66,21 +92,12 @@ public class Finanzas implements NeuralNetListener {
         oculta2.addOutputSynapse(sinapsisO2S);
         salida.addInputSynapse(sinapsisO2S);
         
-        /* Definición de un monitor para que coordine la red */
-        Monitor monitor = iniciarMonitor();
-
-        entrada.setMonitor(monitor);
-        oculta1.setMonitor(monitor);
-        oculta2.setMonitor(monitor);
-        salida.setMonitor(monitor);
-
-        monitor.addNeuralNetListener(this);
-        
         /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
         String fechaInicio = "30-apr-2007";
         String fechaFin="30-apr-2008";
         int primeraFila = 2;
         String simbolo = "MSFT";
+        
         YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraFila, simbolo);
         entrada.addInputSynapse(flujoEntrada);
         
@@ -88,31 +105,42 @@ public class Finanzas implements NeuralNetListener {
         YahooFinanceInputSynapse flujoEntrenamiento = iniciarYahoo(fechaInicio, fechaFin, primeraFila+1, simbolo);
         
         /* Definición de un teacher para que entrene la red */
-        TeachingSynapse profe = iniciarTeacher(monitor, flujoEntrenamiento);
+        TeachingSynapse profe = new TeachingSynapse();
+        profe = iniciarTeacher(flujoEntrenamiento);
+        
+        /* Definición de un monitor para que coordine la red */
+        Monitor monitor = new Monitor();
+        
+        /* Definición de la estructura de la red */
+        NeuralNet red = new NeuralNet();
+        red.addLayer(entrada, NeuralNet.INPUT_LAYER);
+        red.addLayer(oculta1, NeuralNet.HIDDEN_LAYER);
+        red.addLayer(oculta2, NeuralNet.HIDDEN_LAYER);
+        red.addLayer(salida, NeuralNet.OUTPUT_LAYER);
+        red.setMonitor(monitor);
+        red.setTeacher(profe);
         
         /* Conección entre la capa de salida y el teacher */
         salida.addOutputSynapse(profe);
         
-        /* Creación de un archivo para guardar los resultados de la red */
-        FileOutputSynapse flujoResultados = new FileOutputSynapse();
-        flujoResultados.setFileName(".\resultado.txt");
-        salida.addOutputSynapse(flujoResultados);
+//        /* Creación de un archivo para guardar los resultados de la red */
+//        FileOutputSynapse flujoResultados = new FileOutputSynapse();
+//        flujoResultados.setFileName(".\resultado.txt");
+//        salida.addOutputSynapse(flujoResultados);
+//        /* Inicio de la ejecución de las capas, se ejecutan en paralelo porque cada una es un hilo separado */
+//        entrada.start();
+//        oculta1.start();
+//        oculta2.start();
+//        salida.start();
+//
+//        entrada.setMonitor(monitor);
+//        oculta1.setMonitor(monitor);
+//        oculta2.setMonitor(monitor);
+//        salida.setMonitor(monitor);
+//
+//        profe.setMonitor(monitor);
         
-        /* Inicio de la ejecución de las capas, se ejecutan en paralelo porque cada una es un hilo separado */
-        entrada.start();
-        oculta1.start();
-        oculta2.start();
-        salida.start();
-        
-        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
-        monitor.setTrainingPatterns(0); 
-        
-        /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
-        monitor.setTotCicles(10000); 
-        
-        monitor.setLearning(true);
-        monitor.Go(); 
-        
+        return red;
         
     }
 
@@ -138,13 +166,10 @@ public class Finanzas implements NeuralNetListener {
         Monitor mon = (Monitor)evento.getSource();
         
         /* Epoch actual */
-        long c = mon.getCurrentCicle();
-        long cl = c / 500;
+        long c = (mon.getTotCicles()-mon.getCurrentCicle());
         
-        /* Impreción de resultados cada 500 epochs */
-        if ((cl * 500) == c) {
-            System.out.println("Ciclo: "+ c + " - Error: " + mon.getGlobalError());
-        }
+        System.out.println("Ciclo: "+ c + " - RMSE: " + mon.getGlobalError());
+        
         
     }
 
@@ -152,20 +177,10 @@ public class Finanzas implements NeuralNetListener {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private Monitor iniciarMonitor() {
-
-        Monitor monitor = new Monitor();
-        monitor.setLearningRate(0.5);
-        monitor.setMomentum(0.6);
-
-        return monitor;
-    }
-
-    private TeachingSynapse iniciarTeacher(Monitor monitor, YahooFinanceInputSynapse flujoEntrenamiento) {
+    private TeachingSynapse iniciarTeacher(YahooFinanceInputSynapse flujoEntrenamiento) {
 
         /* Definición de un teacher para que entrene la red */
         TeachingSynapse profe = new TeachingSynapse();
-        profe.setMonitor(monitor);
 
         profe.setDesired(flujoEntrenamiento);
 
