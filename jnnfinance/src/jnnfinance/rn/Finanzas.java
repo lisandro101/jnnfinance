@@ -145,7 +145,7 @@ public class Finanzas implements NeuralNetListener {
 //
 //        profe.setMonitor(monitor);
         
-        return red;
+        return red;  
         
     }
 
