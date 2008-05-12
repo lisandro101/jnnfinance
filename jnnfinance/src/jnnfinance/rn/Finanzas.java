@@ -43,6 +43,7 @@ public class Finanzas implements NeuralNetListener {
         monitor.setMomentum(0.6);
         monitor.setLearning(true);
         
+        
         /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
         monitor.setTrainingPatterns(0);
 
