@@ -104,31 +104,50 @@ public class Finanzas implements NeuralNetListener {
         oculta2.start();
         salida.start();
         
-        monitor.setTrainingPatterns(4); /* # of rows (patterns) contained in the input file */
-        monitor.setTotCicles(5000); /* How many times the net must be trained on the input patterns */
-        monitor.setLearning(true); /* The net must be trained */
-        monitor.Go(); /* The net starts the training job */
+        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
+        monitor.setTrainingPatterns(0); 
+        
+        /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
+        monitor.setTotCicles(10000); 
+        
+        monitor.setLearning(true);
+        monitor.Go(); 
         
         
     }
 
-    public void netStarted(NeuralNetEvent arg0) {
+    public void netStarted(NeuralNetEvent evento) {
+        System.out.println("Entrenando...");
+    }
+
+    public void cicleTerminated(NeuralNetEvent evento) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void cicleTerminated(NeuralNetEvent arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void netStopped(NeuralNetEvent evento) {
+        
+        System.out.println("Entrenamiento Finalizado");
+        System.exit(0);
+        
     }
 
-    public void netStopped(NeuralNetEvent arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void errorChanged(NeuralNetEvent evento) {
+        
+        /* Obtención del monitor a partir del evento */
+        Monitor mon = (Monitor)evento.getSource();
+        
+        /* Epoch actual */
+        long c = mon.getCurrentCicle();
+        long cl = c / 500;
+        
+        /* Impreción de resultados cada 500 epochs */
+        if ((cl * 500) == c) {
+            System.out.println("Ciclo: "+ c + " - Error: " + mon.getGlobalError());
+        }
+        
     }
 
-    public void errorChanged(NeuralNetEvent arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void netStoppedError(NeuralNetEvent arg0, String arg1) {
+    public void netStoppedError(NeuralNetEvent evento, String arg1) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
