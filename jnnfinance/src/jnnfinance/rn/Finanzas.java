@@ -21,6 +21,8 @@ import org.joone.net.NeuralNet;
  * @author Lisandro
  */
 public class Finanzas implements NeuralNetListener {
+    
+    int ventanaTemporal;
 
     /**
      * @param args the command line arguments
@@ -75,6 +77,9 @@ public class Finanzas implements NeuralNetListener {
         oculta1.setRows(15);
         oculta2.setRows(5);
         salida.setRows(1);
+        
+        /* Definición de la cantidad de días anteriores a tener en cuenta para las predicciones*/
+        entrada.setTaps(ventanaTemporal - 1);
 
         /* Creación de las uniones entre las capas (sinapsis) */
         FullSynapse sinapsisEO1 = new FullSynapse(); /* entrada -> oculta1 */
