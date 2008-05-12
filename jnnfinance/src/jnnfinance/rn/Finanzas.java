@@ -126,7 +126,8 @@ public class Finanzas implements NeuralNetListener {
 
     public void netStopped(NeuralNetEvent evento) {
         
-        System.out.println("Entrenamiento Finalizado");
+        long delay = System.currentTimeMillis();
+        System.out.println("Entrenamiento Finalizado después de "+delay+" ms.");
         System.exit(0);
         
     }
