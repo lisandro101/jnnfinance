@@ -7,10 +7,12 @@ package jnnfinance.rn;
 
 import org.joone.engine.DelayLayer;
 import org.joone.engine.FullSynapse;
+import org.joone.engine.Layer;
 import org.joone.engine.Monitor;
 import org.joone.engine.NeuralNetEvent;
 import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
+import org.joone.engine.Synapse;
 import org.joone.engine.learning.TeachingSynapse;
 import org.joone.io.FileOutputSynapse;
 import org.joone.io.YahooFinanceInputSynapse;
@@ -41,8 +43,7 @@ public class Finanzas implements NeuralNetListener {
         Monitor monitor = red.getMonitor();
         monitor.setLearningRate(0.5);
         monitor.setMomentum(0.6);
-        monitor.setLearning(true);
-        
+        monitor.setLearning(true);       
         
         /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
         monitor.setTrainingPatterns(0);
@@ -90,9 +91,8 @@ public class Finanzas implements NeuralNetListener {
         sinapsisEO1.setName("Sinapsis entrada-oculta1");
         sinapsisO1O2.setName("Sinapsis oculta1-oculta2");
         sinapsisO2S.setName("Sinapsis oculta2-salida");
-
-        entrada.addOutputSynapse(sinapsisEO1);
-        oculta1.addInputSynapse(sinapsisEO1);
+        
+        conectarCapas(entrada,sinapsisEO1, oculta1);
         oculta1.addOutputSynapse(sinapsisO1O2);
         oculta2.addInputSynapse(sinapsisO1O2);
         oculta2.addOutputSynapse(sinapsisO2S);
@@ -148,6 +148,12 @@ public class Finanzas implements NeuralNetListener {
         
         return red;  
         
+    }
+    
+     private void conectarCapas(Layer origen, Synapse sinapsis, Layer destino) {
+
+        origen.addOutputSynapse(sinapsis);
+        destino.addInputSynapse(sinapsis);
     }
 
     public void netStarted(NeuralNetEvent evento) {
