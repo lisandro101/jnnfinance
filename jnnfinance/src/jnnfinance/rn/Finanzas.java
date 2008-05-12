@@ -93,10 +93,8 @@ public class Finanzas implements NeuralNetListener {
         sinapsisO2S.setName("Sinapsis oculta2-salida");
         
         conectarCapas(entrada,sinapsisEO1, oculta1);
-        oculta1.addOutputSynapse(sinapsisO1O2);
-        oculta2.addInputSynapse(sinapsisO1O2);
-        oculta2.addOutputSynapse(sinapsisO2S);
-        salida.addInputSynapse(sinapsisO2S);
+        conectarCapas(oculta1,sinapsisO1O2, oculta2);
+        conectarCapas(oculta2,sinapsisO2S, salida);
         
         /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
         String fechaInicio = "30-apr-2007";
