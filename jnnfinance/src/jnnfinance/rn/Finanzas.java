@@ -24,6 +24,10 @@ import org.joone.net.NeuralNet;
  */
 public class Finanzas implements NeuralNetListener {
     
+    int neuronasEntrada;
+    int neuronasOculta1;
+    int NeuronasOculta2;
+    int neuronasSalida;
     int ventanaTemporal;
 
     /**
@@ -35,30 +39,6 @@ public class Finanzas implements NeuralNetListener {
         NeuralNet red = finanzas.inicializar();
         finanzas.entrenar(red);
          
-    }
-
-    private void entrenar(NeuralNet red) {
-
-        /* Inicialización del un monitor para coordina la red */
-        Monitor monitor = red.getMonitor();
-        monitor.setLearningRate(0.5);
-        monitor.setMomentum(0.6);
-        monitor.setLearning(true);       
-        
-        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
-        monitor.setTrainingPatterns(0);
-
-        /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
-        monitor.setTotCicles(10000);
-
-        red.addNeuralNetListener(this);
-        red.start();
-        red.getMonitor().Go();
-        red.join();
-        
-        System.out.println("Red detenida."); 
-        System.out.println("Ultimo RMSE: "+red.getMonitor().getGlobalError());
-        
     }
 
     private NeuralNet inicializar() {
@@ -75,10 +55,10 @@ public class Finanzas implements NeuralNetListener {
         salida.setLayerName("Capa de salida");
 
         /* Definición de la cantidad de neuronas de cada capa */
-        entrada.setRows(1);
-        oculta1.setRows(15);
-        oculta2.setRows(5);
-        salida.setRows(1);
+        entrada.setRows(neuronasEntrada);
+        oculta1.setRows(neuronasOculta1);
+        oculta2.setRows(NeuronasOculta2);
+        salida.setRows(neuronasSalida);
         
         /* Definición de la cantidad de días anteriores a tener en cuenta para las predicciones*/
         entrada.setTaps(ventanaTemporal - 1);
@@ -128,6 +108,30 @@ public class Finanzas implements NeuralNetListener {
         salida.addOutputSynapse(profe);
                 
         return red;  
+        
+    }
+    
+    private void entrenar(NeuralNet red) {
+
+        /* Inicialización del un monitor para coordina la red */
+        Monitor monitor = red.getMonitor();
+        monitor.setLearningRate(0.5);
+        monitor.setMomentum(0.6);
+        monitor.setLearning(true);       
+        
+        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
+        monitor.setTrainingPatterns(0);
+
+        /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
+        monitor.setTotCicles(10000);
+
+        red.addNeuralNetListener(this);
+        red.start();
+        red.getMonitor().Go();
+        red.join();
+        
+        System.out.println("Red detenida."); 
+        System.out.println("Ultimo RMSE: "+red.getMonitor().getGlobalError());
         
     }
     
