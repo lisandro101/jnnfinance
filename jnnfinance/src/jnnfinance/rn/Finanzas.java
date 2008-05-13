@@ -126,24 +126,7 @@ public class Finanzas implements NeuralNetListener {
         
         /* Conección entre la capa de salida y el teacher */
         salida.addOutputSynapse(profe);
-        
-//        /* Creación de un archivo para guardar los resultados de la red */
-//        FileOutputSynapse flujoResultados = new FileOutputSynapse();
-//        flujoResultados.setFileName(".\resultado.txt");
-//        salida.addOutputSynapse(flujoResultados);
-//        /* Inicio de la ejecución de las capas, se ejecutan en paralelo porque cada una es un hilo separado */
-//        entrada.start();
-//        oculta1.start();
-//        oculta2.start();
-//        salida.start();
-//
-//        entrada.setMonitor(monitor);
-//        oculta1.setMonitor(monitor);
-//        oculta2.setMonitor(monitor);
-//        salida.setMonitor(monitor);
-//
-//        profe.setMonitor(monitor);
-        
+                
         return red;  
         
     }
