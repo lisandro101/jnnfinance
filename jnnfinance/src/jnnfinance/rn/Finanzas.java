@@ -24,18 +24,24 @@ import org.joone.net.NeuralNet;
  */
 public class Finanzas implements NeuralNetListener {
     
-    /* Varibles de la red */ 
-    int neuronasEntrada;
-    int neuronasOculta1;
-    int NeuronasOculta2;
-    int neuronasSalida;
-    int ventanaTemporal;
+    /* Variables relacionadas con la red */
+    private int neuronasEntrada;
+    private int neuronasOculta1;
+    private int NeuronasOculta2;
+    private int neuronasSalida;
+    private int ventanaTemporal;
     
-    /* Variables relacinadas con la entrada de datos de Yahoo*/
-    String fechaInicio = "30-apr-2007";
-    String fechaFin="30-apr-2008";
-    int primeraFila = 2;
-    String simbolo = "MSFT";
+    /* Variables relacionadas con la ejecución y el aprendizaje */
+    private double tasaDeAprendisaje;
+    private double momentum;
+    private int epochs;
+    
+    /* Variables relacionadas con Yahoo */
+    private String fechaInicio;
+    private String fechaFin;
+    private int primeraFila;
+    private String simbolo;
+    private String columnaYahoo;
 
     /**
      * @param args the command line arguments
@@ -43,11 +49,27 @@ public class Finanzas implements NeuralNetListener {
     public static void main(String[] args) {
          
         Finanzas finanzas = new Finanzas(); 
+        finanzas.setNeuronasEntrada(1);
+        finanzas.setNeuronasOculta1(15);
+        finanzas.setNeuronasOculta2(5);
+        finanzas.setNeuronasSalida(1);
+        finanzas.setVentanaTemporal(5);
+        
+        finanzas.setTasaDeAprendisaje(0.5);
+        finanzas.setMomentum(0.6);
+        finanzas.setEpochs(10000);
+        
+        finanzas.setFechaInicio("");
+        finanzas.setFechaFin("");
+        finanzas.setSimbolo("MSF");
+        finanzas.setPrimeraFila(2);
+        finanzas.setColumnaYahoo("4");
+        
         NeuralNet red = finanzas.inicializar();
         finanzas.entrenar(red);
          
     }
-
+    
     private NeuralNet inicializar() {
 
         /* Definición de las capas de la red */
@@ -62,13 +84,13 @@ public class Finanzas implements NeuralNetListener {
         salida.setLayerName("Capa de salida");
 
         /* Definición de la cantidad de neuronas de cada capa */
-        entrada.setRows(neuronasEntrada);
-        oculta1.setRows(neuronasOculta1);
-        oculta2.setRows(NeuronasOculta2);
-        salida.setRows(neuronasSalida);
+        entrada.setRows(getNeuronasEntrada());
+        oculta1.setRows(getNeuronasOculta1());
+        oculta2.setRows(getNeuronasOculta2());
+        salida.setRows(getNeuronasSalida());
         
         /* Definición de la cantidad de días anteriores a tener en cuenta para las predicciones*/
-        entrada.setTaps(ventanaTemporal - 1);
+        entrada.setTaps(getVentanaTemporal() - 1);
 
         /* Creación de las uniones entre las capas (sinapsis) */
         FullSynapse sinapsisEO1 = new FullSynapse(); /* entrada -> oculta1 */
@@ -82,14 +104,13 @@ public class Finanzas implements NeuralNetListener {
         conectarCapas(entrada,sinapsisEO1, oculta1);
         conectarCapas(oculta1,sinapsisO1O2, oculta2);
         conectarCapas(oculta2,sinapsisO2S, salida);
-        
-        
-        
-        YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraFila, simbolo);
+              
+        /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
+        YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(getFechaInicio(), getFechaFin(), getPrimeraFila(), getSimbolo());
         entrada.addInputSynapse(flujoEntrada);
         
         /* Definición de los datos de validación para el teacher*/
-        YahooFinanceInputSynapse flujoEntrenamiento = iniciarYahoo(fechaInicio, fechaFin, primeraFila+1, simbolo);
+        YahooFinanceInputSynapse flujoEntrenamiento = iniciarYahoo(getFechaInicio(), getFechaFin(), getPrimeraFila()+1, getSimbolo());
         
         /* Definición de un teacher para que entrene la red */
         TeachingSynapse profe = new TeachingSynapse();
@@ -118,15 +139,15 @@ public class Finanzas implements NeuralNetListener {
 
         /* Inicialización del un monitor para coordina la red */
         Monitor monitor = red.getMonitor();
-        monitor.setLearningRate(0.5);
-        monitor.setMomentum(0.6);
+        monitor.setLearningRate(getTasaDeAprendisaje());
+        monitor.setMomentum(getMomentum());
         monitor.setLearning(true);       
         
         /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
         monitor.setTrainingPatterns(0);
 
         /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
-        monitor.setTotCicles(10000);
+        monitor.setTotCicles(getEpochs());
 
         red.addNeuralNetListener(this);
         red.start();
@@ -196,7 +217,7 @@ public class Finanzas implements NeuralNetListener {
 
         YahooFinanceInputSynapse flujoEntrada = new YahooFinanceInputSynapse();
         
-        flujoEntrada.setAdvancedColumnSelector("4");
+        flujoEntrada.setAdvancedColumnSelector(getColumnaYahoo());
         flujoEntrada.setName("Yahoo");
         flujoEntrada.setFirstRow(primeraColumna);
         flujoEntrada.setLastRow(0);
@@ -206,6 +227,110 @@ public class Finanzas implements NeuralNetListener {
         
        return flujoEntrada;
         
+    }
+
+    public int getNeuronasEntrada() {
+        return neuronasEntrada;
+    }
+
+    public void setNeuronasEntrada(int neuronasEntrada) {
+        this.neuronasEntrada = neuronasEntrada;
+    }
+
+    public int getNeuronasOculta1() {
+        return neuronasOculta1;
+    }
+
+    public void setNeuronasOculta1(int neuronasOculta1) {
+        this.neuronasOculta1 = neuronasOculta1;
+    }
+
+    public int getNeuronasOculta2() {
+        return NeuronasOculta2;
+    }
+
+    public void setNeuronasOculta2(int NeuronasOculta2) {
+        this.NeuronasOculta2 = NeuronasOculta2;
+    }
+
+    public int getNeuronasSalida() {
+        return neuronasSalida;
+    }
+
+    public void setNeuronasSalida(int neuronasSalida) {
+        this.neuronasSalida = neuronasSalida;
+    }
+
+    public int getVentanaTemporal() {
+        return ventanaTemporal;
+    }
+
+    public void setVentanaTemporal(int ventanaTemporal) {
+        this.ventanaTemporal = ventanaTemporal;
+    }
+
+    public double getTasaDeAprendisaje() {
+        return tasaDeAprendisaje;
+    }
+
+    public void setTasaDeAprendisaje(double tasaDeAprendisaje) {
+        this.tasaDeAprendisaje = tasaDeAprendisaje;
+    }
+
+    public double getMomentum() {
+        return momentum;
+    }
+
+    public void setMomentum(double momentum) {
+        this.momentum = momentum;
+    }
+
+    public int getEpochs() {
+        return epochs;
+    }
+
+    public void setEpochs(int epochs) {
+        this.epochs = epochs;
+    }
+
+    public String getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(String fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public String getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(String fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public int getPrimeraFila() {
+        return primeraFila;
+    }
+
+    public void setPrimeraFila(int primeraFila) {
+        this.primeraFila = primeraFila;
+    }
+
+    public String getSimbolo() {
+        return simbolo;
+    }
+
+    public void setSimbolo(String simbolo) {
+        this.simbolo = simbolo;
+    }
+
+    public String getColumnaYahoo() {
+        return columnaYahoo;
+    }
+
+    public void setColumnaYahoo(String columnaYahoo) {
+        this.columnaYahoo = columnaYahoo;
     }
 
 }
