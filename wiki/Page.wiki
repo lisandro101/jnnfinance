@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Add your content here. [http://domain/11]
+Add your content here. [11]
 
 
 = Details =
