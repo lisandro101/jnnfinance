@@ -27,7 +27,7 @@ public class Finanzas implements NeuralNetListener {
     /* Variables relacionadas con la red */
     private int neuronasEntrada;
     private int neuronasOculta1;
-    private int NeuronasOculta2;
+    private int neuronasOculta2;
     private int neuronasSalida;
     private int ventanaTemporal;
     
@@ -35,6 +35,7 @@ public class Finanzas implements NeuralNetListener {
     private double tasaDeAprendisaje;
     private double momentum;
     private int epochs;
+    private int patronesDeEntrenamiento;
     
     /* Variables relacionadas con Yahoo */
     private String fechaInicio;
@@ -58,6 +59,7 @@ public class Finanzas implements NeuralNetListener {
         finanzas.setTasaDeAprendisaje(0.5);
         finanzas.setMomentum(0.6);
         finanzas.setEpochs(10000);
+        finanzas.setPatronesDeEntrenamiento(200);
         
         finanzas.setFechaInicio("");
         finanzas.setFechaFin("");
@@ -142,6 +144,7 @@ public class Finanzas implements NeuralNetListener {
         monitor.setLearningRate(getTasaDeAprendisaje());
         monitor.setMomentum(getMomentum());
         monitor.setLearning(true);       
+        monitor.setTrainingPatterns(patronesDeEntrenamiento);
         
         /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
         monitor.setTrainingPatterns(0);
@@ -246,11 +249,11 @@ public class Finanzas implements NeuralNetListener {
     }
 
     public int getNeuronasOculta2() {
-        return NeuronasOculta2;
+        return neuronasOculta2;
     }
 
     public void setNeuronasOculta2(int NeuronasOculta2) {
-        this.NeuronasOculta2 = NeuronasOculta2;
+        this.neuronasOculta2 = NeuronasOculta2;
     }
 
     public int getNeuronasSalida() {
@@ -331,6 +334,14 @@ public class Finanzas implements NeuralNetListener {
 
     public void setColumnaYahoo(String columnaYahoo) {
         this.columnaYahoo = columnaYahoo;
+    }
+
+    public int getPatronesDeEntrenamiento() {
+        return patronesDeEntrenamiento;
+    }
+
+    public void setPatronesDeEntrenamiento(int patronesDeEntrenamiento) {
+        this.patronesDeEntrenamiento = patronesDeEntrenamiento;
     }
 
 }
