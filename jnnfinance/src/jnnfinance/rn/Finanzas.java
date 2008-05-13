@@ -24,11 +24,18 @@ import org.joone.net.NeuralNet;
  */
 public class Finanzas implements NeuralNetListener {
     
+    /* Varibles de la red */ 
     int neuronasEntrada;
     int neuronasOculta1;
     int NeuronasOculta2;
     int neuronasSalida;
     int ventanaTemporal;
+    
+    /* Variables relacinadas con la entrada de datos de Yahoo*/
+    String fechaInicio = "30-apr-2007";
+    String fechaFin="30-apr-2008";
+    int primeraFila = 2;
+    String simbolo = "MSFT";
 
     /**
      * @param args the command line arguments
@@ -76,11 +83,7 @@ public class Finanzas implements NeuralNetListener {
         conectarCapas(oculta1,sinapsisO1O2, oculta2);
         conectarCapas(oculta2,sinapsisO2S, salida);
         
-        /* Seteo de todo lo relacinado con la entrada de datos de Yahoo*/
-        String fechaInicio = "30-apr-2007";
-        String fechaFin="30-apr-2008";
-        int primeraFila = 2;
-        String simbolo = "MSFT";
+        
         
         YahooFinanceInputSynapse flujoEntrada = iniciarYahoo(fechaInicio, fechaFin, primeraFila, simbolo);
         entrada.addInputSynapse(flujoEntrada);
