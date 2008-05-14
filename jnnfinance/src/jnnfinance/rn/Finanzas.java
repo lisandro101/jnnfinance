@@ -45,7 +45,7 @@ public class Finanzas implements NeuralNetListener {
     private String simbolo;
     private String columnaYahoo;
     
-    long tiempoInicio;
+    private long tiempoInicio;
 
     /**
      * @param args the command line arguments
