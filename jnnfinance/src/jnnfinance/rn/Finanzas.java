@@ -5,6 +5,8 @@
 
 package jnnfinance.rn;
 
+import java.util.Calendar;
+import java.util.Date;
 import org.joone.engine.DelayLayer;
 import org.joone.engine.FullSynapse;
 import org.joone.engine.Layer;
@@ -14,7 +16,6 @@ import org.joone.engine.NeuralNetListener;
 import org.joone.engine.SigmoidLayer;
 import org.joone.engine.Synapse;
 import org.joone.engine.learning.TeachingSynapse;
-import org.joone.io.FileOutputSynapse;
 import org.joone.io.YahooFinanceInputSynapse;
 import org.joone.net.NeuralNet;
 
@@ -38,8 +39,8 @@ public class Finanzas implements NeuralNetListener {
     private int patronesDeEntrenamiento;
     
     /* Variables relacionadas con Yahoo */
-    private String fechaInicio;
-    private String fechaFin;
+    private Date fechaInicio;
+    private Date fechaFin;
     private int primeraFila;
     private String simbolo;
     private String columnaYahoo;
@@ -61,9 +62,13 @@ public class Finanzas implements NeuralNetListener {
         finanzas.setEpochs(10000);
         finanzas.setPatronesDeEntrenamiento(200);
         
-        finanzas.setFechaInicio("");
-        finanzas.setFechaFin("");
-        finanzas.setSimbolo("MSF");
+        Calendar inicioCal = Calendar.getInstance();        
+        inicioCal.set(2008,4,1);
+        finanzas.setFechaInicio(inicioCal.getTime());
+        Calendar finCal = Calendar.getInstance();        
+        finCal.set(2008,4,30);
+        finanzas.setFechaFin(finCal.getTime());
+        finanzas.setSimbolo("MSFT");
         finanzas.setPrimeraFila(2);
         finanzas.setColumnaYahoo("4");
         
@@ -173,13 +178,14 @@ public class Finanzas implements NeuralNetListener {
     }
 
     public void cicleTerminated(NeuralNetEvent evento) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void netStopped(NeuralNetEvent evento) {
         
-        long delay = System.currentTimeMillis();
-        System.out.println("Entrenamiento Finalizado después de "+delay+" ms.");
+        long delay = System.currentTimeMillis()/3600000000l;
+        
+        System.out.println("Entrenamiento Finalizado después de "+delay+" hs");
         System.exit(0);
         
     }
@@ -208,15 +214,16 @@ public class Finanzas implements NeuralNetListener {
 
         profe.setDesired(flujoEntrenamiento);
 
-        /* Creación de un archivo para guardar el error de la red calculado por el teacher */
-        FileOutputSynapse archivoError = new FileOutputSynapse();
-        archivoError.setFileName("Archivo de error");
-        profe.addResultSynapse(archivoError);
+//        /* Creación de un archivo para guardar el error de la red calculado por el teacher */
+//        FileOutputSynapse archivoError = new FileOutputSynapse();
+//        archivoError.setFileName("Archivo de error");
+//        profe.addResultSynapse(archivoError);
 
         return profe;
     }
 
-    private YahooFinanceInputSynapse iniciarYahoo(String fechaInicio, String fechaFin, int primeraColumna,String simbolo) {
+    @SuppressWarnings("deprecation")
+    private YahooFinanceInputSynapse iniciarYahoo(Date fechaInicio, Date fechaFin, int primeraColumna,String simbolo) {
 
         YahooFinanceInputSynapse flujoEntrada = new YahooFinanceInputSynapse();
         
@@ -224,8 +231,9 @@ public class Finanzas implements NeuralNetListener {
         flujoEntrada.setName("Yahoo");
         flujoEntrada.setFirstRow(primeraColumna);
         flujoEntrada.setLastRow(0);
-        flujoEntrada.setDateStart(fechaInicio);
-        flujoEntrada.setDateEnd(fechaFin);
+                
+        flujoEntrada.setStartDate(fechaInicio);
+        flujoEntrada.setEndDate(fechaFin);
         flujoEntrada.setSymbol(simbolo);
         
        return flujoEntrada;
@@ -296,19 +304,19 @@ public class Finanzas implements NeuralNetListener {
         this.epochs = epochs;
     }
 
-    public String getFechaInicio() {
+    public Date getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(String fechaInicio) {
+    public void setFechaInicio(Date fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
-    public String getFechaFin() {
+    public Date getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(String fechaFin) {
+    public void setFechaFin(Date fechaFin) {
         this.fechaFin = fechaFin;
     }
 
