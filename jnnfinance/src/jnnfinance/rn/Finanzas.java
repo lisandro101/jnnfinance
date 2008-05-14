@@ -44,12 +44,14 @@ public class Finanzas implements NeuralNetListener {
     private int primeraFila;
     private String simbolo;
     private String columnaYahoo;
+    
+    long tiempoInicio;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-         
+                 
         Finanzas finanzas = new Finanzas(); 
         finanzas.setNeuronasEntrada(1);
         finanzas.setNeuronasOculta1(15);
@@ -58,15 +60,15 @@ public class Finanzas implements NeuralNetListener {
         finanzas.setVentanaTemporal(5);
         
         finanzas.setTasaDeAprendisaje(0.5);
-        finanzas.setMomentum(0.6);
+        finanzas.setMomentum(0.4);
         finanzas.setEpochs(10000);
-        finanzas.setPatronesDeEntrenamiento(200);
+        finanzas.setPatronesDeEntrenamiento(20);
         
         Calendar inicioCal = Calendar.getInstance();        
-        inicioCal.set(2008,4,1);
+        inicioCal.set(2008,4-1,1);
         finanzas.setFechaInicio(inicioCal.getTime());
         Calendar finCal = Calendar.getInstance();        
-        finCal.set(2008,4,30);
+        finCal.set(2008,4-1,30);
         finanzas.setFechaFin(finCal.getTime());
         finanzas.setSimbolo("MSFT");
         finanzas.setPrimeraFila(2);
@@ -79,6 +81,8 @@ public class Finanzas implements NeuralNetListener {
     
     private NeuralNet inicializar() {
 
+        tiempoInicio = System.currentTimeMillis();
+        
         /* Definición de las capas de la red */
         DelayLayer entrada = new DelayLayer();
         SigmoidLayer oculta1 = new SigmoidLayer();
@@ -149,10 +153,9 @@ public class Finanzas implements NeuralNetListener {
         monitor.setLearningRate(getTasaDeAprendisaje());
         monitor.setMomentum(getMomentum());
         monitor.setLearning(true);       
-        monitor.setTrainingPatterns(patronesDeEntrenamiento);
-        
-        /* Cantidad de filas que tiene el archivo de entrada, como no es un archivo pongo 0 */
-        monitor.setTrainingPatterns(0);
+                
+        /* Cantidad de filas que tiene el flujo de entrada */
+        monitor.setTrainingPatterns(getPatronesDeEntrenamiento());
 
         /* Definición de la cantidad de epochs, o lo que es lo mismo la cantidad de ejecuciones de la red */
         monitor.setTotCicles(getEpochs());
@@ -183,9 +186,11 @@ public class Finanzas implements NeuralNetListener {
 
     public void netStopped(NeuralNetEvent evento) {
         
-        long delay = System.currentTimeMillis()/3600000000l;
+        long delay = (System.currentTimeMillis() - tiempoInicio);
+        long mseg = (delay % 1000);
+        long seg = (delay - mseg)/1000;
         
-        System.out.println("Entrenamiento Finalizado después de "+delay+" hs");
+        System.out.println("Entrenamiento Finalizado después de "+seg+"s y "+mseg+"ms");
         System.exit(0);
         
     }
@@ -198,13 +203,15 @@ public class Finanzas implements NeuralNetListener {
         /* Epoch actual */
         long c = (mon.getTotCicles()-mon.getCurrentCicle());
         
-        System.out.println("Ciclo: "+ c + " - RMSE: " + mon.getGlobalError());
+        if (mon.getCurrentCicle() % 1000 == 0) {
+            System.out.println("Ciclo: " + c + " - RMSE: " + mon.getGlobalError());
+        }
         
         
     }
 
     public void netStoppedError(NeuralNetEvent evento, String arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private TeachingSynapse iniciarTeacher(YahooFinanceInputSynapse flujoEntrenamiento) {
