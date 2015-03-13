@@ -1,0 +1,1 @@
+Un programa para predecir el valor de las acciones mediante redes neuronales realizado integramente en java.
